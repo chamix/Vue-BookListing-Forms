@@ -1,16 +1,15 @@
 <template>
   <div>
     <h1>{{title}}</h1>
+    <input type="text" placeholder="Search Books" v-model="searchInput">
     <ul>
-      <book-item v-for="book in books" :key="book.id" :book="book"></book-item>
+      <book-item v-for="book in searchedBooks" :key="book.id" :book="book"></book-item>
     </ul>
     <br>
     <hr>
     <book-form @addBook="appendBook"></book-form>
     <hr>
-    <h2>
-      Filtered Books By Ownership
-    </h2>
+    <h2>Filtered Books By Ownership</h2>
     <select v-model="holding">
       <option v-for="filter in filters">{{filter}}</option>
     </select>
@@ -31,27 +30,28 @@ export default {
     return {
       title: "All Books",
       states: ["Want to Read", "Read", "Reading"],
-      filters: ['borrowed','bought'],
-      holding:'bought',
+      filters: ["borrowed", "bought"],
+      holding: "bought",
+      searchInput: "",
       books: [
         {
           title: "Self-Reliance",
           author: "Ralph Waldo Emerson",
           finishedReading: true,
-          ownership:'borrowed'
+          ownership: "borrowed"
         },
         {
           title: "American Gods",
           author: "Neil Gaiman",
           finishedReading: false,
-          ownership:'bought'
+          ownership: "bought"
         },
         {
           title: "Amusing Ourselves to Death",
           author: "Neil Postman",
           finishedReading: true,
-          ownership:'borrowed'        
-        }          
+          ownership: "borrowed"
+        }
       ]
     };
   },
@@ -59,9 +59,15 @@ export default {
     BookItem,
     BookForm
   },
-  computed:{
+  computed: {
     filteredBooks() {
-        return _.filter(this.books, ["ownership", this.holding]);
+      return _.filter(this.books, ["ownership", this.holding]);
+    },
+    searchedBooks() {
+      const searchFilter = book => {
+        return book.title.toLowerCase().match(this.searchInput.toLowerCase());
+      };
+      return _.filter(this.books, searchFilter);
     }
   },
   methods: {
